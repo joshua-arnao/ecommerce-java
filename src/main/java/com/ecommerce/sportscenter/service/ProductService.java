@@ -7,5 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
     ProductResponse getProductById(Integer productId);
-    Page<ProductResponse> getAllProducts(Pageable pegable);
+    Page<ProductResponse> getAllProducts(Pageable pegable, Integer brandId, Integer typeId, String keyword);
+
+
 }

@@ -6,6 +6,7 @@ import com.ecommerce.sportscenter.repository.ProductRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,16 +35,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProducts(Pageable pegable) {
+    public Page<ProductResponse> getAllProducts(Pageable pageable, Integer brandId, Integer typeId, String keyword) {
         log.info("Fetching All Products!!!");
-        // FETCH BRANDS
-        Page<Product> productPage = productRepository.findAll(pegable);
-
-        // NOW USE STREAM OPERATOR TO MAP WITH RESPONSE
-        Page<ProductResponse> productResponses = productPage
-                .map(this::convertToProductResponse);
+        Specification<Product> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
+        // Specification<Product> spec = Specification.where((Specification<Product>) null);
+        if (brandId != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("brand").get("id"), brandId));
+        }
+        if (typeId != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("type").get("id"), typeId));
+        }
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and(((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("name"), "%" + keyword + "%")));
+        }
         log.info("Fetched All Products!!!");
-        return productResponses;
+
+        return productRepository.findAll(spec, pageable).map(this::convertToProductResponse);
     }
 
     private ProductResponse convertToProductResponse(Product product) {
