@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductResponse {
+public class ShoppingCartItemResponse {
     private Integer id;
     private String name;
     private String description;
@@ -17,4 +17,5 @@ public class ProductResponse {
     private String pictureUrl;
     private String productBrand;
     private String productType;
+    private Integer quantity;
 }

@@ -1,15 +1,13 @@
-package com.ecommerce.sportscenter.model;
+package com.ecommerce.sportscenter.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ProductResponse {
+@RedisHash("ShoppingCartItem")
+public class ShoppingCartItem {
+    @Id
     private Integer id;
     private String name;
     private String description;
@@ -17,4 +15,6 @@ public class ProductResponse {
     private String pictureUrl;
     private String productBrand;
     private String productType;
+    private Integer quantity;
+
 }

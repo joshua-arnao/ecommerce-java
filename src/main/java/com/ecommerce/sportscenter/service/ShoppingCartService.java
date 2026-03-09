@@ -1,0 +1,14 @@
+package com.ecommerce.sportscenter.service;
+
+import com.ecommerce.sportscenter.entity.ShoppingCart;
+import com.ecommerce.sportscenter.model.ShoppingCartResponse;
+
+import java.util.List;
+
+public interface ShoppingCartService {
+    List<ShoppingCartResponse> getAllShoppingCarts();
+    ShoppingCartResponse getShoppingCartById(String shoppingId);
+    void deleteShoppingCartById(String shoppingId);
+    ShoppingCartResponse createShoppingCart(ShoppingCart shoppingCart);
+
+}
