@@ -142,7 +142,7 @@ const ShoppingCart = {
       throw error;
     }
   },
-  deleteBasket: async (basketId: string) => {
+  deleteshoppingCart: async (basketId: string) => {
     try {
       await shoppingCartService.deleteshoppingCart(basketId);
     } catch (error) {
@@ -156,10 +156,17 @@ const Account = {
   login: (values: any) => requests.post('auth/login', values),
 };
 
+const Orders = {
+  list: () => requests.get('orders'),
+  fetch: (id: number) => requests.get(`orders/${id}`),
+  create: (values: any) => requests.post('orders', values),
+};
+
 const agent = {
   Store,
   ShoppingCart,
   Account,
+  Orders,
 };
 
 export default agent;

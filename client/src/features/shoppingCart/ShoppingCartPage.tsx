@@ -1,5 +1,7 @@
 import { Add, Delete, Remove } from '@mui/icons-material';
 import {
+  Box,
+  Button,
   IconButton,
   Paper,
   Table,
@@ -13,6 +15,8 @@ import {
 import { useAppDispatch, useAppSelector } from '../../app/store/configureStors';
 import agent from '../../app/api/agent';
 import type { Product } from '../../app/models/product';
+import ShoppingCartSummary from './ShoppingCartSummary';
+import { Link } from 'react-router-dom';
 
 export default function ShoppingCartPage() {
   const { shoppingCart } = useAppSelector((state) => state.shoppingCart);
@@ -57,61 +61,75 @@ export default function ShoppingCartPage() {
     );
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Product Image</TableCell>
-            <TableCell>Product</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Quantity</TableCell>
-            <TableCell>Subtotal</TableCell>
-            <TableCell>Remove</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {shoppingCart.items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
-                {item.pictureUrl && (
-                  <img
-                    src={'/images/products/' + extractImageName(item)}
-                    alt='Product'
-                    width='50'
-                    height='50'
-                  />
-                )}
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{formatPrice(item.price)}</TableCell>
-              <TableCell>
-                <IconButton
-                  color='error'
-                  onClick={() => decrementItem(item.id)}
-                >
-                  <Remove />
-                </IconButton>
-                {item.quantity}
-                <IconButton
-                  color='error'
-                  onClick={() => incrementItem(item.id)}
-                >
-                  <Add />
-                </IconButton>
-              </TableCell>
-              <TableCell>{formatPrice(item.price * item.quantity)}</TableCell>
-              <TableCell>
-                <IconButton
-                  onClick={() => removeItem(item.id)}
-                  aria-label='delete'
-                >
-                  <Delete />
-                </IconButton>
-              </TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Product Image</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Quantity</TableCell>
+              <TableCell>Subtotal</TableCell>
+              <TableCell>Remove</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {shoppingCart.items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  {item.pictureUrl && (
+                    <img
+                      src={'/images/products/' + extractImageName(item)}
+                      alt='Product'
+                      width='50'
+                      height='50'
+                    />
+                  )}
+                </TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{formatPrice(item.price)}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color='error'
+                    onClick={() => decrementItem(item.id)}
+                  >
+                    <Remove />
+                  </IconButton>
+                  {item.quantity}
+                  <IconButton
+                    color='error'
+                    onClick={() => incrementItem(item.id)}
+                  >
+                    <Add />
+                  </IconButton>
+                </TableCell>
+                <TableCell>{formatPrice(item.price * item.quantity)}</TableCell>
+                <TableCell>
+                  <IconButton
+                    onClick={() => removeItem(item.id)}
+                    aria-label='delete'
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box mt={2} p={2} bgcolor='background.paper' borderRadius={4}>
+        <ShoppingCartSummary />
+        <Button
+          component={Link}
+          to='/checkout'
+          variant='contained'
+          size='large'
+          fullWidth
+        >
+          Checkout
+        </Button>
+      </Box>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -13,19 +14,18 @@ import { useParams } from 'react-router-dom';
 import type { Product } from '../../app/models/product';
 import agent from '../../app/api/agent';
 import Spinner from '../../app/layout/Spinner';
+import { useAppDispatch, useAppSelector } from '../../app/store/configureStors';
+import { LoadingButton } from '@mui/lab';
 
 export default function ProductDetails() {
+  const { shoppingCart } = useAppSelector((state) => state.shoppingCart);
+  const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>();
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    id &&
-      agent.Store.details(parseInt(id))
-        .then((response) => setProduct(response))
-        .catch((error) => console.error(error))
-        .finally(() => setLoading(false));
-  }, [id]);
+  const [quantity, setQuantity] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const item = shoppingCart?.items.find((i) => i.id === product?.id);
 
   const extractImageName = (item: Product): string | null => {
     if (item && item.pictureUrl) {
@@ -43,6 +43,54 @@ export default function ProductDetails() {
       currency: 'PEN',
       minimumFractionDigits: 2,
     }).format(price);
+  };
+
+  useEffect(() => {
+    if (item) setQuantity(item.quantity);
+    id &&
+      agent.Store.details(parseInt(id))
+        .then((response) => setProduct(response))
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false));
+  }, [id, item]);
+
+  const inputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value);
+    if (!isNaN(value) && value > 0) {
+      setQuantity(value);
+    }
+  };
+
+  const updateQuantity = async () => {
+    try {
+      setSubmitting(true);
+      const newItem = {
+        ...product!,
+        quantity: quantity,
+      };
+      if (item) {
+        const quantityDifference = quantity - item.quantity;
+        if (quantityDifference > 0) {
+          await agent.ShoppingCart.incrementItemQuantity(
+            item.id,
+            quantityDifference,
+            dispatch,
+          );
+        } else if (quantityDifference < 0) {
+          await agent.ShoppingCart.decrementItemQuantity(
+            item.id,
+            Math.abs(quantityDifference),
+            dispatch,
+          );
+        }
+      } else {
+        await agent.ShoppingCart.addItem(newItem, dispatch);
+      }
+      setSubmitting(false);
+    } catch (error) {
+      console.error('Failed to update quantity:', error);
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <Spinner message='Loading Products...' />;
@@ -85,31 +133,31 @@ export default function ProductDetails() {
               </TableBody>
             </Table>
           </TableContainer>
-          {/* <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <TextField
-              onChange={inputChange}
-              variant='outlined'
-              type='number'
-              label='Quantity in Cart'
-              fullWidth
-              value={quantity}
-            />
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                onChange={inputChange}
+                variant='outlined'
+                type='number'
+                label='Quantity in Cart'
+                fullWidth
+                value={quantity}
+              />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <LoadingButton
+                sx={{ height: '55px' }}
+                color='primary'
+                size='large'
+                variant='contained'
+                fullWidth
+                loading={submitting}
+                onClick={updateQuantity}
+              >
+                {item ? 'Update Quantity' : 'Add to Cart'}
+              </LoadingButton>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <LoadingButton
-              sx={{ height: '55px' }}
-              color='primary'
-              size='large'
-              variant='contained'
-              fullWidth
-              loading={submitting}
-              onClick={updateQuantity}
-            >
-              {item ? 'Update Quantity' : 'Add to Cart'}
-            </LoadingButton>
-          </Grid>
-        </Grid> */}
         </Grid>
       </Grid>
     )
