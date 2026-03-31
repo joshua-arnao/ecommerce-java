@@ -1,26 +1,26 @@
 package com.ecommerce.sportscenter.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Table(name = "Brand")
-@Data
+@Table(name = "brand")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
+    @EqualsAndHashCode.Include
+    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     private String name;
 
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)

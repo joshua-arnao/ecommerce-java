@@ -1,16 +1,14 @@
 package com.ecommerce.sportscenter.entity.OrderAggregate;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Embeddable
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class ShippingAddress {
     private String name;
     private String address1;

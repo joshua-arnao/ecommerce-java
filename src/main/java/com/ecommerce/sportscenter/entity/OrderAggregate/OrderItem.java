@@ -1,30 +1,30 @@
 package com.ecommerce.sportscenter.entity.OrderAggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Table(name = "OderItem")
-@Data
+@Table(name = "oder_item")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
+    @EqualsAndHashCode.Include
+    @Column(name = "id")
     private Integer id;
 
     @Embedded
     private ProductItemOrdered itemOrdered;
 
-    @Column(name = "Price")
+    @Column(name = "price")
     private Long price;
 
-    @Column(name = "Quantity")
+    @Column(name = "quantity")
     private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)

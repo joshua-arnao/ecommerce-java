@@ -1,18 +1,21 @@
 package com.ecommerce.sportscenter.entity.OrderAggregate;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import lombok.*;
 
 @Embeddable
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ProductItemOrdered {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer productId;
+
     private String name;
     private String pictureUrl;
 }
