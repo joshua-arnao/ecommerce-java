@@ -1,50 +1,55 @@
 package com.ecommerce.sportscenter.entity.OrderAggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "Oders")
-@Data
+@Table(name = "orders")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
+    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "ShoppingCart_id")
+    @Column(name = "shoppingcart_id")
     private String shoppingCartId;
 
     @Embedded
     private ShippingAddress shippingAddress;
 
-    @Column(name = "Order_Date")
-    private LocalDateTime orderDate = LocalDateTime.now();
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
     private List<OrderItem> orderItems;
 
-    @Column(name = "Sub_Total")
-    private Double subTotal;
+    @Column(name = "sub_total")
+    private BigDecimal subTotal;
 
-    @Column(name = "Delivery_Fee")
-    private Long deliveryFee;
+    @Column(name = "delivery_fee")
+    private BigDecimal deliveryFee;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Order_Status")
+    @Column(name = "order_status")
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
-    public Double getTotal() {
-        return getSubTotal() + getDeliveryFee();
+    @Column(name = "order_date", updatable = false)
+    private LocalDateTime orderDate = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        this.orderDate = LocalDateTime.now();
+    }
+
+    public BigDecimal getTotal() {
+        return getSubTotal().add(getDeliveryFee());
     }
 
 }

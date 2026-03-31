@@ -1,40 +1,42 @@
 package com.ecommerce.sportscenter.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "Product")
-@Data
+@Table(name = "products")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
+    @EqualsAndHashCode.Include
+    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "Description", length = 2000)
+    @Column(name = "description", length = 2000)
     private String description;
 
-    @Column(name = "Price")
-    private Long price;
+    @Column(name = "price")
+    private BigDecimal price;
 
-    @Column(name = "PictureUrl")
+    @Column(name = "picture_url")
     private String pictureUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductBrandId", referencedColumnName = "Id")
+    @JoinColumn(name = "product_brand_id", referencedColumnName = "id")
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductTypeId", referencedColumnName = "Id")
+    @JoinColumn(name = "product_type_id", referencedColumnName = "id")
     private Type type;
 }
