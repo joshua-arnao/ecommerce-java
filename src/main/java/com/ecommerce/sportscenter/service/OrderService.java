@@ -11,6 +11,6 @@ public interface OrderService {
     OrderResponse getOrderById(Integer orderId);
     List<OrderResponse> getAllOrders();
     Page<OrderResponse> getAllOrders(Pageable pageable);
-    Integer createrOrder(OrderDto order);
+    Integer createOrder(OrderDto order);
     void deleteOrder(Integer orderId);
 }

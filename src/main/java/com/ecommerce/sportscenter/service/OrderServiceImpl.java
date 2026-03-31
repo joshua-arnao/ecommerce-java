@@ -11,6 +11,7 @@ import com.ecommerce.sportscenter.model.ShoppingCartResponse;
 import com.ecommerce.sportscenter.repository.BrandRepository;
 import com.ecommerce.sportscenter.repository.OrderRepository;
 import com.ecommerce.sportscenter.repository.TypeRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,8 +64,9 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteById(orderId);
     }
 
+    @Transactional
     @Override
-    public Integer createrOrder(OrderDto orderDto) {
+    public Integer createOrder(OrderDto orderDto) {
         ShoppingCartResponse shoppingCartResponse = shoppingCartService.getShoppingCartById(orderDto.getShoppingCartId());
 
         if(shoppingCartResponse == null) {

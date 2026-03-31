@@ -48,7 +48,7 @@ public class OrdersController {
 
     @PostMapping
     public ResponseEntity<Integer> createOrder(@Valid @RequestBody OrderDto orderDto){
-        Integer orderId = orderService.createrOrder(orderDto);
+        Integer orderId = orderService.createOrder(orderDto);
         if(orderId!=null){
             return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
         }else{
