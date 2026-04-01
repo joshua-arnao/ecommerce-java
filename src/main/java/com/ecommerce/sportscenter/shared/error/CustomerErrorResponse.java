@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CustomerErrorResponse {
-    private HttpStatus status;
-    private String error;
-    private String message;
+import java.time.LocalDateTime;
+
+public record CustomerErrorResponse (
+        int status,
+        String message,
+        String path,
+        LocalDateTime timestamp
+) {
 }

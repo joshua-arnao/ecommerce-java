@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "oder_item")
+@Table(name = "order_items")
 @Getter
 @Setter
 @AllArgsConstructor

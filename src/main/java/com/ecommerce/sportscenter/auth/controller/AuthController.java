@@ -2,7 +2,14 @@ package com.ecommerce.sportscenter.auth.controller;
 
 import com.ecommerce.sportscenter.auth.dto.JwtRequest;
 import com.ecommerce.sportscenter.auth.dto.JwtResponse;
-import com.ecommerce.sportscenter.shared.security.JwtHelper;
+import com.ecommerce.sportscenter.shared.security.JwtService;
+import com.ecommerce.sportscenter.user.dto.AuthResponse;
+import com.ecommerce.sportscenter.user.dto.LoginRequest;
+import com.ecommerce.sportscenter.user.dto.RegisterRequest;
+import com.ecommerce.sportscenter.user.dto.UserResponse;
+import com.ecommerce.sportscenter.user.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,56 +21,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private final UserDetailsService userDetailsService;
-    private final AuthenticationManager manager;
-    private final JwtHelper jwtHelper;
+    private final UserService userService;
 
-
-    public AuthController(UserDetailsService userDetailsService, AuthenticationManager manager, JwtHelper jwtHelper) {
-        this.userDetailsService = userDetailsService;
-        this.manager = manager;
-        this.jwtHelper = jwtHelper;
+    @PostMapping("/register")
+    public UserResponse registerUser (@Valid @RequestBody RegisterRequest registerRequest) {
+        return userService.createUser(registerRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request){
-        this.authenticate(request.getUsername(), request.getPassword());
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        String token = this.jwtHelper.generateToken(userDetails);
-        JwtResponse response = JwtResponse.builder()
-                .username(userDetails.getUsername())
-                .token(token)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/user")
-    public ResponseEntity<UserDetails> getUserDetails(@RequestHeader("Authorization") String tokenHeader){
-        String token = extractTokenFromHeader(tokenHeader);
-        if(token!=null){
-            String username = jwtHelper.getUserNameFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            return new ResponseEntity<>(userDetails, HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private String extractTokenFromHeader(String tokenHeader) {
-        if(tokenHeader!=null && tokenHeader.startsWith("Bearer ")){
-            return tokenHeader.substring(7);
-        }
-        return null;
-    }
-
-    private void authenticate(String username, String password) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        try{
-            manager.authenticate(authenticationToken);
-        }
-        catch(BadCredentialsException ex){
-            throw new BadCredentialsException("Invalid UserName or Password");
-        }
+    public AuthResponse loginUser (@Valid @RequestBody LoginRequest loginRequest) {
+        return userService.login(loginRequest);
     }
 }

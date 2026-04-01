@@ -1,25 +1,42 @@
-#spring.application.name=sportscenter;
 server:
   port: 8081
 
 spring:
+  application:
+    name: data_ecommerce
+
   datasource:
-    url: jdbc:mysql://localhost:3306/sports-center
+    url: jdbc:mysql://localhost:3306/data_ecommerce?allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: password
-  application:
-    name: SportCenter
+    hikari:
+      initialization-fail-timeout: 30000
+
   jpa:
     hibernate:
-      ddl-auto: update
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
-#        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+
+  sql:
+    init:
+      mode: always
 
   data:
     redis:
       host: localhost
       port: 6379
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000

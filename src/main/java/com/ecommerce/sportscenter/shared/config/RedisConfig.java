@@ -11,21 +11,16 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 public class RedisConfig {
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.builder()
-                .username("joshua")
-                .password(passwordEncoder().encode("Password"))
-                .roles("admin")
-                .build();
-
-        return new InMemoryUserDetailsManager(userDetails);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails userDetails = User.builder()
+//                .username("joshua")
+//                .password(passwordEncoder().encode("Password"))
+//                .roles("admin")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(userDetails);
+//    }
 }
 
 
