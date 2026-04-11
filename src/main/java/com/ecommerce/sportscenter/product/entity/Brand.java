@@ -17,8 +17,8 @@ public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    @Column(name = "id")
-    private Integer id;
+    @Column(name = "brand_id")
+    private Integer brandId;
 
     @Column(name = "name")
     private String name;

@@ -1,51 +1,31 @@
 package com.ecommerce.sportscenter.cart.service;
 
+import com.ecommerce.sportscenter.cart.dto.ShoppingCartRequest;
 import com.ecommerce.sportscenter.cart.entity.ShoppingCart;
 import com.ecommerce.sportscenter.cart.entity.ShoppingCartItem;
 import com.ecommerce.sportscenter.cart.dto.ShoppingCartItemResponse;
 import com.ecommerce.sportscenter.cart.dto.ShoppingCartResponse;
 import com.ecommerce.sportscenter.cart.repository.ShoppingCartRepository;
+import com.ecommerce.sportscenter.shared.exceptions.ShoppingCartNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
-
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
-        this.shoppingCartRepository = shoppingCartRepository;
-    }
-
-    @Override
-    public List<ShoppingCartResponse> getAllShoppingCarts() {
-        log.info("Fetching All ShoppingCart");
-        List<ShoppingCart> shoppingCartList = (List<ShoppingCart>) shoppingCartRepository.findAll();
-        List<ShoppingCartResponse> shoppingCartResponses = shoppingCartList.stream()
-                .map(this::convertToShoppingCartResponse)
-                .collect(Collectors.toList());
-        log.info("Fetched all ShoppingCart");
-        return shoppingCartResponses;
-    }
 
 
     @Override
     public ShoppingCartResponse getShoppingCartById(String shoppingCartId) {
-        log.info("Fetching ShoppingCart by Id:{}", shoppingCartId);
-        Optional<ShoppingCart> shoppingCartOptional = shoppingCartRepository.findById(shoppingCartId);
-        if (shoppingCartOptional.isPresent()){
-            ShoppingCart shoppingCart = shoppingCartOptional.get();
-            log.info("Fetched Basket by Id: {}", shoppingCartId);
-
-            return convertToShoppingCartResponse(shoppingCart);
-        } else {
-            log.info("ShoppingCart with Id: {} not found", shoppingCartId);
-            return null;
-        }
+        return shoppingCartRepository.findById(shoppingCartId)
+                .map(this::convertToShoppingCartResponse)
+                .orElseThrow(() -> new ShoppingCartNotFoundException("Shopping cart not found"));
     }
 
     @Override
@@ -56,11 +36,33 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ShoppingCartResponse createShoppingCart(ShoppingCart shoppingCart) {
-        log.info("Creating Shoppingcart");
-        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
-        log.info("ShoppingCart creted with Id: {}", savedShoppingCart.getId());
-        return convertToShoppingCartResponse(savedShoppingCart);
+    public ShoppingCartResponse createOrUpdateCart(String userId, ShoppingCartRequest shoppingCartRequest) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setId(userId);
+
+        List<ShoppingCartItem> items = shoppingCartRequest.items().stream()
+                .map(item -> ShoppingCartItem.builder()
+                        .shoppingCartIdItem(item.getShoppingCartItemId())
+                        .name(item.getName())
+                        .description(item.getDescription())
+                        .price(item.getPrice())
+                        .pictureUrl(item.getPictureUrl())
+                        .productBrand(item.getProductBrand())
+                        .productType(item.getProductType())
+                        .quantity(item.getQuantity())
+                        .build() )
+                .toList();
+
+        shoppingCart.setItems(items);
+
+        ShoppingCart savedCart = shoppingCartRepository.save(shoppingCart);
+
+        return new ShoppingCartResponse(
+                savedCart.getId(),
+                savedCart.getItems().stream()
+                        .map(this::convertToShoppingCartItemResponse)
+                        .toList()
+        );
     }
 
     private ShoppingCartResponse convertToShoppingCartResponse(ShoppingCart shoppingCart) {
@@ -71,14 +73,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 .map(this::convertToShoppingCartItemResponse)
                 .collect(Collectors.toList());
         return ShoppingCartResponse.builder()
-                .id(shoppingCart.getId())
+                .shoppingCartId(shoppingCart.getId())
                 .items(itemResponses)
                 .build();
     }
 
     private ShoppingCartItemResponse convertToShoppingCartItemResponse(ShoppingCartItem shoppingCartItem) {
         return ShoppingCartItemResponse.builder()
-                .id(shoppingCartItem.getId())
+                .shoppingCartItemId(shoppingCartItem.getShoppingCartIdItem())
                 .name(shoppingCartItem.getName())
                 .description(shoppingCartItem.getDescription())
                 .price(shoppingCartItem.getPrice())

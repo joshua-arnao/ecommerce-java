@@ -34,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
 
     private BrandResponse convertToBrandResponse(Brand brand) {
         return BrandResponse.builder()
-                .id(brand.getId())
+                .id(brand.getBrandId())
                 .name(brand.getName())
                 .build();
     }

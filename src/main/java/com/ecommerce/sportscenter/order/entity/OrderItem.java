@@ -3,6 +3,8 @@ package com.ecommerce.sportscenter.order.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "order_items")
 @Getter
@@ -22,7 +24,7 @@ public class OrderItem {
     private ProductItemOrdered itemOrdered;
 
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
     @Column(name = "quantity")
     private Integer quantity;

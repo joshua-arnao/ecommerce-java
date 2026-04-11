@@ -4,61 +4,44 @@ import com.ecommerce.sportscenter.order.entity.Order;
 import com.ecommerce.sportscenter.order.entity.OrderItem;
 import com.ecommerce.sportscenter.order.entity.ProductItemOrdered;
 import com.ecommerce.sportscenter.order.mapper.OrderMapper;
-import com.ecommerce.sportscenter.order.dto.OrderDto;
+import com.ecommerce.sportscenter.order.dto.OrderRequest;
 import com.ecommerce.sportscenter.order.dto.OrderResponse;
 import com.ecommerce.sportscenter.cart.dto.ShoppingCartItemResponse;
 import com.ecommerce.sportscenter.cart.dto.ShoppingCartResponse;
-import com.ecommerce.sportscenter.product.repository.BrandRepository;
 import com.ecommerce.sportscenter.order.repository.OrderRepository;
-import com.ecommerce.sportscenter.product.repository.TypeRepository;
 import com.ecommerce.sportscenter.cart.service.ShoppingCartService;
+import com.ecommerce.sportscenter.shared.exceptions.ProductNotFoundException;
+import com.ecommerce.sportscenter.shared.exceptions.ShoppingCartNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final BrandRepository brandRepository;
-    private final TypeRepository typeRepository;
     private final ShoppingCartService shoppingCartService;
     private final OrderMapper orderMapper;
-
-    public OrderServiceImpl(OrderRepository orderRepository, BrandRepository brandRepository, TypeRepository typeRepository, ShoppingCartService shoppingCartService, OrderMapper orderMapper) {
-        this.orderRepository = orderRepository;
-        this.brandRepository = brandRepository;
-        this.typeRepository = typeRepository;
-        this.shoppingCartService = shoppingCartService;
-        this.orderMapper = orderMapper;
-    }
 
 
     @Override
     public OrderResponse getOrderById(Integer orderId) {
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
-
-        return optionalOrder.map(orderMapper::orderToOrderResponse).orElse(null);
+        return orderRepository.findById(orderId)
+                .map(orderMapper::orderToOrderResponse)
+                .orElseThrow(() -> new ProductNotFoundException("Order not found"));
     }
 
     @Override
-    public List<OrderResponse> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-
-        return orders.stream().map(orderMapper::orderToOrderResponse).collect(Collectors.toList());
-
-    }
-
-    @Override
-    public Page<OrderResponse> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(orderMapper::orderToOrderResponse);
+    public List<OrderResponse> getAllOrders(String userId) {
+        return orderRepository.findByShoppingCartId(userId)
+                .stream()
+                .map(orderMapper::orderToOrderResponse)
+                .toList();
     }
 
     @Override
@@ -68,50 +51,51 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public Integer createOrder(OrderDto orderDto) {
-        ShoppingCartResponse shoppingCartResponse = shoppingCartService.getShoppingCartById(orderDto.getShoppingCartId());
+    public Integer createOrder(String userId, OrderRequest orderRequest) {
+        ShoppingCartResponse cart = shoppingCartService.getShoppingCartById(userId);
 
-        if(shoppingCartResponse == null) {
-            log.error("Shopping Cart with ID {} not found", orderDto.getShoppingCartId());
-            return null;
+        if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
+            throw new ShoppingCartNotFoundException("Shopping cart not found for user: " + userId);
         }
 
-        List<OrderItem> orderItems = shoppingCartResponse.getItems().stream()
+        List<OrderItem> orderItems = cart.getItems().stream()
                 .map(this::mapShoppingCartToOrderItem)
-                .collect(Collectors.toList());
+                .toList();
 
-        BigDecimal subtotal = shoppingCartResponse.getItems().stream()
+        BigDecimal subtotal = cart.getItems().stream()
                 .map(item -> item.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Order order = orderMapper.orderDtoToOrder(orderDto);
+        Order order = orderMapper.orderRequestToOrder(orderRequest);
+
+        order.setShoppingCartId(userId);
         order.setOrderItems(orderItems);
         order.setSubTotal(subtotal);
 
+        orderItems.forEach(item -> item.setOrder(order));
+
         Order savedOrder = orderRepository.save(order);
-        shoppingCartService.deleteShoppingCartById(orderDto.getShoppingCartId());
+
+        shoppingCartService.deleteShoppingCartById(userId);
 
         return savedOrder.getId();
     }
 
-    private OrderItem mapShoppingCartToOrderItem(ShoppingCartItemResponse shoppingCartItemResponse) {
-        if(shoppingCartItemResponse!=null){
-            OrderItem orderItem = new OrderItem();
-            orderItem.setItemOrdered(mapShoppingCartItemToProduct(shoppingCartItemResponse));
-            orderItem.setQuantity(shoppingCartItemResponse.getQuantity());
-            return orderItem;
-        }else{
-            return null;
-        }
+    private OrderItem mapShoppingCartToOrderItem(ShoppingCartItemResponse item) {
+        if (item == null) return null;
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItemOrdered(mapShoppingCartItemToProduct(item));
+        orderItem.setQuantity(item.getQuantity());
+        orderItem.setPrice(item.getPrice());
+        return orderItem;
     }
 
     private ProductItemOrdered mapShoppingCartItemToProduct(ShoppingCartItemResponse shoppingCartItemResponse) {
         ProductItemOrdered productItemOrdered = new ProductItemOrdered();
         productItemOrdered.setName(shoppingCartItemResponse.getName());
         productItemOrdered.setPictureUrl(shoppingCartItemResponse.getPictureUrl());
-        productItemOrdered.setProductId(shoppingCartItemResponse.getId());
+        productItemOrdered.setProductId(shoppingCartItemResponse.getShoppingCartItemId());
         return productItemOrdered;
     }
-
 }

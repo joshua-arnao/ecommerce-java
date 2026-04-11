@@ -17,8 +17,8 @@ public class Type {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    @Column(name = "id")
-    private Integer id;
+    @Column(name = "type_id")
+    private Integer typeId;
 
     @Column(name = "name")
     private String name;

@@ -1,25 +1,22 @@
 package com.ecommerce.sportscenter.order.controller;
 
-import com.ecommerce.sportscenter.order.dto.OrderDto;
+import com.ecommerce.sportscenter.order.dto.OrderRequest;
 import com.ecommerce.sportscenter.order.dto.OrderResponse;
 import com.ecommerce.sportscenter.order.service.OrderService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrdersController {
     private final OrderService orderService;
-
-    public OrdersController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Integer orderId) {
@@ -33,27 +30,17 @@ public class OrdersController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        List<OrderResponse> orders = orderService.getAllOrders();
-
-        return ResponseEntity.ok(orders);
-    }
-
-    @GetMapping("/paged")
-    public ResponseEntity<Page<OrderResponse>> getAllOrders(Pageable pageable) {
-        Page<OrderResponse> orders = orderService.getAllOrders(pageable);
-
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<List<OrderResponse>> getAllOrders(Authentication authentication) {
+        return ResponseEntity.ok(orderService.getAllOrders(authentication.getName()));
     }
 
     @PostMapping
-    public ResponseEntity<Integer> createOrder(@Valid @RequestBody OrderDto orderDto){
-        Integer orderId = orderService.createOrder(orderDto);
-        if(orderId!=null){
-            return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
-        }else{
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Integer> createOrder(
+            @Valid @RequestBody OrderRequest orderRequest,
+            Authentication authentication) {
+        String userId = authentication.getName();
+        Integer orderId = orderService.createOrder(userId, orderRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
     }
 
     @DeleteMapping("/{orderId}")

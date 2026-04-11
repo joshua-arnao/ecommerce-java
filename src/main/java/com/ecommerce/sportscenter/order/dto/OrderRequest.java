@@ -6,16 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDto {
-    private String shoppingCartId;
+public class OrderRequest {
     private ShippingAddress shippingAddress;
-    private Long subTotal;
-    private Long deliveryFee;
-    private LocalDateTime orderDate;
+    private BigDecimal deliveryFee;
 }

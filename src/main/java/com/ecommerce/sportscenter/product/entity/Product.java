@@ -17,8 +17,8 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    @Column(name = "id")
-    private Integer id;
+    @Column(name = "product_id")
+    private Integer productId;
 
     @Column(name = "name")
     private String name;
@@ -33,10 +33,10 @@ public class Product {
     private String pictureUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_brand_id", referencedColumnName = "id")
+    @JoinColumn(name = "product_brand_id", referencedColumnName = "brand_id")
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_type_id", referencedColumnName = "id")
+    @JoinColumn(name = "product_type_id", referencedColumnName = "type_id")
     private Type type;
 }

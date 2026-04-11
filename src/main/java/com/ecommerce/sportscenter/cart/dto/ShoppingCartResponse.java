@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShoppingCartResponse {
-    private String id;
+    private String shoppingCartId;
     private List<ShoppingCartItemResponse> items;
 }

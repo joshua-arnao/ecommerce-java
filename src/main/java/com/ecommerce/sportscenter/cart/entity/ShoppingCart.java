@@ -16,6 +16,7 @@ public class ShoppingCart {
     @Id
     @EqualsAndHashCode.Include
     private String id;
+
     private List<ShoppingCartItem> items = new ArrayList<>();
 
     public ShoppingCart(String id) {

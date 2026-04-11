@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
     Specification<Product> searchByNameContaining(String keyword);
-    Specification<Product> findByBrandId(Integer brandId);
-    Specification<Product> findByTypeId(Integer typeId);
-    Specification<Product> findByIdAfterAndTypeId(Integer brandId, Integer typeId);
+    Specification<Product> findByBrandBrandId(Integer brandId);
+    Specification<Product> findByTypeTypeId(Integer typeId);
+    Specification<Product> findByBrandBrandIdAfterAndTypeTypeId(Integer brandId, Integer typeId);
 
 }

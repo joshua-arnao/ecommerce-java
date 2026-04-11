@@ -1,16 +1,13 @@
 package com.ecommerce.sportscenter.order.service;
 
-import com.ecommerce.sportscenter.order.dto.OrderDto;
+import com.ecommerce.sportscenter.order.dto.OrderRequest;
 import com.ecommerce.sportscenter.order.dto.OrderResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface OrderService {
     OrderResponse getOrderById(Integer orderId);
-    List<OrderResponse> getAllOrders();
-    Page<OrderResponse> getAllOrders(Pageable pageable);
-    Integer createOrder(OrderDto order);
+    List<OrderResponse> getAllOrders(String userId);
+    Integer createOrder(String userId, OrderRequest orderRequest);
     void deleteOrder(Integer orderId);
 }

@@ -34,7 +34,7 @@ public class TypeServiceImpl implements TypeService {
 
     private TypeResponse convertToTypeResponse(Type type) {
         return TypeResponse.builder()
-                .id(type.getId())
+                .id(type.getTypeId())
                 .name(type.getName())
                 .build();
     }

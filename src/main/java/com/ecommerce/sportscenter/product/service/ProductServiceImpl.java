@@ -53,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductResponse convertToProductResponse(Product product) {
         return ProductResponse.builder()
-                .id(product.getId())
+                .id(product.getProductId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
