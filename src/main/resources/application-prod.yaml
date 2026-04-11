@@ -18,6 +18,8 @@ spring:
       mode: always
 
   data:
+    redis:
+      url: ${REDIS_URL}
     jpa:
       repositories:
         bootstrap-mode: default
